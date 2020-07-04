@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Mortgage Calculator</title>
+    <style>
+        .col {
+            display: inline-block;
+        }
+        
+        .col1 {
+            width: 40%;
+            float: right;
+        }
+        
+        .col2 {
+            width: 55%;
+        }
+        
+        * {
+            text-align: center;
+            font-family: 'Lato', sans-serif;
+        }
+        
+        .wrapper {
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            border-width: 2px;
+            border-color: black;
+            border-style: solid;
+            box-shadow: 10px 15px 20px #888888;
+        }
+        
+        label,
+        .form-element p,
+        .final-result-label {
+            font-weight: bold;
+        }
+        
+        p {
+            font-size: 18px;
+        }
+        
+        .form-element-output,
+        #final-result {
+            font-weight: normal;
+        }
+        
+        .statement {
+            font-size: 28px;
+        }
+        
+        .heart {
+            color: deeppink;
+            font-size: 32px;
+        }
+    </style>
+
+    <body>
+        <div class="wrapper">
+            <h1>Super Special Mortgage Calculator</h1>
+            <div class="col1 col">
+                <p class="final-result-label">Monthly Mortgage Payment:</p>
+                <p id="final-result"></p>
+                <p class="final-result-label">Total Monthly Payment:</p>
+                <p id="final-result2"></p>
+            </div>
+            <div class="col2 col">
+                <form id="mortgage-calculator">
+                    <div class="form-element">
+                        <label for="mortgage-rate">Percent Mortgage Rate:</label>
+                        <input type="range" class="form-input" id="mortgageRate" name="mortgageRate" min="0" max=".07" step=".0025" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="appraisal">Appraised Value of House:</label>
+                        <input type="range" class="form-input" id="appraisal" name="appraisal" min="60000" max="175000" step="2500" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="down-payment">Percent of Down Payment:</label>
+                        <input type="range" class="form-input" id="downPayment" name="downPayment" min="0" max=".15" step=".05" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="home-owners-association">Monthly Homeowners Association Fee:</label>
+                        <input type="range" class="form-input" id="homeOwnersAssociation" name="homeOwnersAssociation" min="0" max="125" step="5" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="federal-property-tax">Monthly Federal Tax:</label>
+                        <input type="range" class="form-input" id="federalPropertyTax" name="federalPropertyTax" min="0" max="300" step="25" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="state-property-tax">Monthly State Tax:</label>
+                        <input type="range" class="form-input" id="statePropertyTax" name="statePropertyTax" min="0" max="300" step="25" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="home-owners-insurance">Monthly Home Owners Insurance:</label>
+                        <input type="range" class="form-input" id="homeOwnersInsurance" name="homeOwnersInsurance" min="0" max="300" step="25" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                    <div class="form-element">
+                        <label for="private-mortgage-insurance">Private Mortgage Insurance Percentage:</label>
+                        <input type="range" class="form-input" id="privateMortgageInsurance" name="privateMortgageInsurance" min=".005" max=".03" step=".0025" oninput="makeUpdates(this)">
+                        <p>Value: <span class="form-element-output"></span></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script type="text/javascript">
+            function Mortgage() {
+                this.mortgageRate = 0;
+                this.appraisal = 0;
+                this.downPayment = 0;
+                this.homeOwnersAssociation = 0;
+                this.federalPropertyTax = 0;
+                this.statePropertyTax = 0;
+                this.homeOwnersInsurance = 0;
+                this.privateMortgageInsurance = 0;
+                this.monthsOfMortgage = 360;
+                //Works
+                this.finalAmmountFinanced = function () {
+                    return this.appraisal - this.appraisal * this.downPayment;
+                };
+                //Works
+                this.privateMortgageInsuranceMonthlyCost = function () {
+                    return (this.finalAmmountFinanced() * this.privateMortgageInsurance) / 12;
+                };
+                //Works
+                this.monthlyMortgageRate = function () {
+                    return this.mortgageRate / 12;
+                };
+                this.monthlyMortgagePayment = function () {
+                    return this.finalAmmountFinanced() * (this.monthlyMortgageRate() * Math.pow((1 + this.monthlyMortgageRate()), this.monthsOfMortgage)) / (Math.pow(1 + this.monthlyMortgageRate(), this.monthsOfMortgage) - 1);
+                };
+                this.totalMonthlyPayment = function () {
+                    return this.monthlyMortgagePayment() + this.privateMortgageInsuranceMonthlyCost() + this.statePropertyTax + this.federalPropertyTax + this.homeOwnersAssociation + this.homeOwnersInsurance;
+                };
+            }
+
+            function updateFormLabel(obj) {
+                var formLabelParentElement = obj.parentElement;
+                formLabelParentElement.querySelector(".form-element-output").innerHTML = obj.value;
+            }
+            var mortgageRate = new Mortgage();
+            var mortgageFormElements = document.getElementById("mortgage-calculator").querySelectorAll(".form-input");
+            for (var i = 0; i < mortgageFormElements.length; i++) {
+                makeUpdates(mortgageFormElements[i]);
+            }
+
+            function makeUpdates(formObj) {
+                updateFormLabel(formObj);
+                mortgageRate[formObj.id] = parseFloat(formObj.value);
+                document.getElementById("final-result").innerHTML = "$" + mortgageRate.monthlyMortgagePayment().toFixed(2);
+                document.getElementById("final-result2").innerHTML = "$" + mortgageRate.totalMonthlyPayment().toFixed(2);
+            }
+        </script>
+    </body>
+
+</html>
